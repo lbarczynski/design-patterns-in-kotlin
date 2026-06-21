@@ -6,9 +6,11 @@ import kotlin.test.assertSame
 class SingletonPatternTest {
 
     @Test
-    fun `GIVEN initialized instance WHEN get THEN should return the same instance`() {
-        val first = SingletonExampleType.get()
-        val second = SingletonExampleType.get()
+    fun `GIVEN singleton WHEN getInstance called twice THEN should return the same instance`() {
+        val first = Singleton.getInstance()
+        val second = Singleton.getInstance()
+        
+        assertSame(first, second)
         assertSame(first.innerValue, second.innerValue)
     }
 }

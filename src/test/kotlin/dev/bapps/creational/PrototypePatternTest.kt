@@ -20,7 +20,7 @@ class PrototypePatternTest {
         assertEquals(sffVm.arch, testVm.arch)
         assertEquals(sffVm.cpuCores, testVm.cpuCores)
         assertEquals(5000, testVm.ram)
-        assertEquals(sffVm.hdd, testVm.hdd)
+        assertEquals(sffVm.disk, testVm.disk)
         assertContentEquals(sffVm.preInstalledPackages, testVm.preInstalledPackages)
     }
 
@@ -35,5 +35,7 @@ class PrototypePatternTest {
         // then
         assertContentEquals(vm.preInstalledPackages, testVm.preInstalledPackages)
         assertNotSame(vm.preInstalledPackages, testVm.preInstalledPackages)
+        assertEquals(vm.disk, testVm.disk)
+        assertNotSame(vm.disk, testVm.disk)
     }
 }

@@ -27,9 +27,9 @@ interface ScreenContract {
     }
 
     interface View {
-        fun renderPrimaryButton(text: String, onClick: () -> Unit)
-        fun renderSecondaryButton(text: String, onClick: () -> Unit)
-        fun renderCounter(counter: Int)
+        fun setPrimaryButtonText(text: String)
+        fun setSecondaryButtonText(text: String)
+        fun setCounterText(counter: String)
         fun setPrimaryButtonEnabled(isEnabled: Boolean)
         fun setSecondaryButtonEnabled(isEnabled: Boolean)
     }
@@ -86,8 +86,8 @@ class Presenter(private val model: ScreenContract.Model) : ScreenContract.Presen
     override fun attachView(view: ScreenContract.View) {
         this.view = view
         model.addObserver(modelObserver)
-        view.renderPrimaryButton(text = "Increment Counter", onClick = ::onPrimaryButtonClick)
-        view.renderSecondaryButton(text = "Decrement Counter", onClick = ::onSecondaryButtonClick)
+        view.setPrimaryButtonText("Increment Counter")
+        view.setSecondaryButtonText("Decrement Counter")
         view.update(model)
     }
 
@@ -101,7 +101,7 @@ class Presenter(private val model: ScreenContract.Model) : ScreenContract.Presen
 
     private companion object {
         private fun ScreenContract.View.update(model: ScreenContract.Model) {
-            renderCounter(model.counter())
+            setCounterText(model.counter().toString())
             setPrimaryButtonEnabled(model.canIncrement())
             setSecondaryButtonEnabled(model.canDecrement())
         }
@@ -116,28 +116,33 @@ class CounterScreenView(
     private val secondaryButton: Button = uiFramework.findButtonById("secondary.button")
     private val counterTextView: TextView = uiFramework.findTextViewById("counter.text")
 
+    private val primaryClickListener = Button.OnClickListener { presenter.onPrimaryButtonClick() }
+    private val secondaryClickListener = Button.OnClickListener { presenter.onSecondaryButtonClick() }
+
     fun onScreenOpened() {
+        primaryButton.addOnClickListener(primaryClickListener)
+        secondaryButton.addOnClickListener(secondaryClickListener)
         presenter.attachView(this)
     }
 
     fun onScreenClosed() {
         presenter.detachView()
+        primaryButton.removeOnClickListener(primaryClickListener)
+        secondaryButton.removeOnClickListener(secondaryClickListener)
         primaryButton.cleanup()
         secondaryButton.cleanup()
     }
 
-    override fun renderPrimaryButton(text: String, onClick: () -> Unit) {
+    override fun setPrimaryButtonText(text: String) {
         primaryButton.setText(text)
-        primaryButton.addOnClickListener(onClick)
     }
 
-    override fun renderSecondaryButton(text: String, onClick: () -> Unit) {
+    override fun setSecondaryButtonText(text: String) {
         secondaryButton.setText(text)
-        secondaryButton.addOnClickListener(onClick)
     }
 
-    override fun renderCounter(counter: Int) {
-        counterTextView.setText(counter.toString())
+    override fun setCounterText(counter: String) {
+        counterTextView.setText(counter)
     }
 
     override fun setPrimaryButtonEnabled(isEnabled: Boolean) {

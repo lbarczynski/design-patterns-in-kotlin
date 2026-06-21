@@ -1,35 +1,27 @@
 package dev.bapps.creational
 
-/**
- * Please note:
- *      Kotlin Data Classes generate a "copy" method by default.
- *      This implementation was intentional to make the code clearer
- *      for the reader. For more complex objects, you will need to
- *      implement this pattern anyway, as Kotlin's "copy" method
- *      does not perform a deep copy.
- */
 class VirtualMachineConfiguration(
     val os: String,
     val arch: String,
     val cpuCores: Int,
     val ram: Int,
-    val hdd: Int,
-    val preInstalledPackages: List<String>
+    val disk: Hdd,
+    val preInstalledPackages: MutableList<String>
 ) {
     fun clone(
         os: String = this.os,
         arch: String = this.arch,
         cpuCores: Int = this.cpuCores,
         ram: Int = this.ram,
-        hdd: Int = this.hdd,
-        preInstalledPackages: List<String> = this.preInstalledPackages.toList()
+        disk: Hdd = this.disk.copy(), // deep copy
+        preInstalledPackages: MutableList<String> = this.preInstalledPackages.toMutableList() // deep copy
     ): VirtualMachineConfiguration {
         return VirtualMachineConfiguration(
             os = os,
             arch = arch,
             cpuCores = cpuCores,
             ram = ram,
-            hdd = hdd,
+            disk = disk,
             preInstalledPackages = preInstalledPackages
         )
     }
@@ -41,21 +33,21 @@ object VirtualMachinesTemplates {
         arch = "amd64",
         cpuCores = 2,
         ram = 4096,
-        hdd = 256,
-        preInstalledPackages = listOf("htop", "cockpit", "micro")
+        disk = Hdd(256, "SSD"),
+        preInstalledPackages = mutableListOf("htop", "cockpit", "micro")
     )
 
     val MiniPC = GenericVM.clone(
         cpuCores = 4,
         ram = 8192,
-        hdd = 1024
+        disk = Hdd(1024, "NVMe")
     )
 
     val SFF = GenericVM.clone(
         cpuCores = 16,
         ram = 65536,
-        hdd = 2048,
-        preInstalledPackages = listOf("htop", "cockpit", "micro", "docker")
+        disk = Hdd(2048, "NVMe"),
+        preInstalledPackages = mutableListOf("htop", "cockpit", "micro", "docker")
     )
 
     val RaspberryPi4 = VirtualMachineConfiguration(
@@ -63,7 +55,9 @@ object VirtualMachinesTemplates {
         arch = "armv8",
         cpuCores = 4,
         ram = 4096,
-        hdd = 128,
-        preInstalledPackages = emptyList()
+        disk = Hdd(128, "SD Card"),
+        preInstalledPackages = mutableListOf()
     )
 }
+
+data class Hdd(var hddSizeMb: Int, var type: String)

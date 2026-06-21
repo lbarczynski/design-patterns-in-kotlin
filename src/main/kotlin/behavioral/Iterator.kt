@@ -22,11 +22,13 @@ class DfsIterator(root: Node) : Iterator<Node> {
 
         val current = stack.removeLast()
         visited.add(current)
-        current
-            .children
-            .reversed()
-            .filter(visited::add)
-            .forEach(stack::addLast)
+        
+        current.children.reversed().forEach { child ->
+            if (child !in visited) {
+                visited.add(child)
+                stack.addLast(child)
+            }
+        }
         return current
     }
 }
@@ -43,10 +45,13 @@ class BfsIterator(root: Node) : Iterator<Node> {
 
         val current = queue.removeFirst()
         visited.add(current)
-        current
-            .children
-            .filter(visited::add)
-            .forEach(queue::addLast)
+        
+        current.children.forEach { child ->
+            if (child !in visited) {
+                visited.add(child)
+                queue.addLast(child)
+            }
+        }
         return current
     }
 }
