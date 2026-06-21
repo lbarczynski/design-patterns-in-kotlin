@@ -20,7 +20,7 @@ interface ScreenContract {
     }
 
     interface Presenter {
-        fun attachView(view: ScreenContract.View)
+        fun attachView(view: View)
         fun onPrimaryButtonClick()
         fun onSecondaryButtonClick()
         fun detachView()
@@ -40,9 +40,7 @@ interface CounterRepository {
     fun saveCounter(value: Int)
 }
 
-class Model(
-    private val repository: CounterRepository
-) : ScreenContract.Model {
+class Model(private val repository: CounterRepository) : ScreenContract.Model {
     private val observers: MutableSet<ScreenContract.Model.Observer> = hashSetOf()
 
     override fun addObserver(observer: ScreenContract.Model.Observer) {
@@ -53,22 +51,14 @@ class Model(
         observers -= observer
     }
 
-    override fun counter(): Int {
-        return repository.getCounter()
-    }
-
-    override fun canIncrement(): Boolean {
-        return repository.getCounter() < MAX_COUNTER
-    }
+    override fun counter(): Int = repository.getCounter()
+    override fun canIncrement(): Boolean = repository.getCounter() < MAX_COUNTER
+    override fun canDecrement(): Boolean = repository.getCounter() > MIN_COUNTER
 
     override fun incrementCounter() {
         require(canIncrement())
         repository.saveCounter(repository.getCounter() + 1)
         notifyObservers()
-    }
-
-    override fun canDecrement(): Boolean {
-        return repository.getCounter() > MIN_COUNTER
     }
 
     override fun decrementCounter() {
@@ -89,7 +79,7 @@ class Model(
 
 class Presenter(private val model: ScreenContract.Model) : ScreenContract.Presenter {
     private var view: ScreenContract.View? = null
-    private val modelObserver =  ScreenContract.Model.Observer {
+    private val modelObserver = ScreenContract.Model.Observer {
         view?.update(model)
     }
 
@@ -101,13 +91,8 @@ class Presenter(private val model: ScreenContract.Model) : ScreenContract.Presen
         view.update(model)
     }
 
-    override fun onPrimaryButtonClick() {
-        model.incrementCounter()
-    }
-
-    override fun onSecondaryButtonClick() {
-        model.decrementCounter()
-    }
+    override fun onPrimaryButtonClick() = model.incrementCounter()
+    override fun onSecondaryButtonClick() = model.decrementCounter()
 
     override fun detachView() {
         model.removeObserver(modelObserver)
